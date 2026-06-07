@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { CustomerProfileModalService } from './core/services/customer-profile-modal.service';
 import { OrderDetailModalService } from './core/services/order-detail-modal.service';
 import { RuleEngineService } from './core/services/rule-engine.service';
@@ -58,7 +58,6 @@ import { LoginRole, OrderStatus, Quote, Shipment } from './core/models/entities'
             } @else {
               <button class="btn btn-light w-100 text-start mb-1" (click)="switchUserRole('MASTER')"><i class="bi bi-arrow-repeat me-2"></i>Cambiar a Gerencia</button>
             }
-            <button class="btn btn-outline-danger w-100 text-start" (click)="logoutFromUserMenu()"><i class="bi bi-box-arrow-right me-2"></i>Salir</button>
           </div>
         </div>
       </div>
@@ -199,7 +198,6 @@ export class AppComponent {
     public readonly userMenu: UserMenuModalService,
     public readonly store: SessionStoreService,
     private readonly auth: AuthService,
-    private readonly router: Router,
     private readonly rules: RuleEngineService,
     private readonly feedback: UiFeedbackService
   ) {}
@@ -265,14 +263,7 @@ export class AppComponent {
   }
 
   switchUserRole(role: LoginRole): void {
-    this.auth.selectRole(role);
-    this.store.updateState((state) => ({ ...state, currentUser: null }));
+    this.auth.switchRole(role);
     this.userMenu.close();
-    this.router.navigate(['/auth/login']);
-  }
-
-  logoutFromUserMenu(): void {
-    this.userMenu.close();
-    this.auth.logout();
   }
 }

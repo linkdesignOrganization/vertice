@@ -15,13 +15,9 @@ npm run start
 npm run build
 ```
 
-## Credenciales demo
-- MASTER
-  - usuario: `master`
-  - contraseña: `Master123!`
-- OPERADOR
-  - usuario: `operador`
-  - contraseña: `Operador123!`
+## Acceso
+- Sin login: al abrir la app se entra directamente al dashboard con el perfil **GERENCIA** (acceso completo).
+- Desde el menú de usuario (esquina superior derecha) se puede alternar entre **GERENCIA** y **OPERADOR** al instante.
 
 ## Notas
 - Persistencia en sesión: memoria + `sessionStorage`.
