@@ -6,21 +6,28 @@ import { AuditService } from '../../core/services/audit.service';
 import { SessionStoreService } from '../../core/services/session-store.service';
 import { UiFeedbackService } from '../../core/services/ui-feedback.service';
 import { StatusChipComponent } from '../../shared/components/status-chip/status-chip.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { UiModalComponent } from '../../shared/components/ui-modal/ui-modal.component';
 
 @Component({
   selector: 'app-returns',
   standalone: true,
-  imports: [FormsModule, StatusChipComponent, DatePipe],
+  imports: [FormsModule, StatusChipComponent, DatePipe, PageHeaderComponent, UiModalComponent],
   template: `
-    <div class="page-header"><i class="bi bi-arrow-return-left fs-4"></i><h2 class="section-title">Devoluciones</h2></div>
+    <app-page-header icon="bi-arrow-return-left" title="Devoluciones">
+      <button class="btn btn-primary" (click)="openNew()"><i class="bi bi-plus-circle me-1"></i>Nueva devolución</button>
+    </app-page-header>
 
-    <div class="glass-card p-3 mb-3">
-      <div class="row g-2 align-items-end">
-        <div class="col-md-4"><label class="form-label">Pedido</label><input class="form-control" [(ngModel)]="draft.orderId" /></div>
-        <div class="col-md-6"><label class="form-label">Motivo</label><input class="form-control" [(ngModel)]="draft.reason" /></div>
-        <div class="col-md-2"><button class="btn btn-primary w-100" (click)="create()"><i class="bi bi-plus-circle"></i> Crear</button></div>
+    <app-ui-modal [open]="newModalOpen" title="Nueva devolución" size="sm" [hasFooter]="true" (close)="newModalOpen=false">
+      <div class="row g-3">
+        <div class="col-12"><label class="form-label">Pedido</label><input class="form-control" [(ngModel)]="draft.orderId" placeholder="Ej: SO-2026-0001" /></div>
+        <div class="col-12"><label class="form-label">Motivo</label><input class="form-control" [(ngModel)]="draft.reason" placeholder="Motivo de la devolución" /></div>
       </div>
-    </div>
+      <div modal-footer>
+        <button class="btn btn-outline-secondary" (click)="newModalOpen=false">Cancelar</button>
+        <button class="btn btn-primary" (click)="create()"><i class="bi bi-plus-circle me-1"></i>Crear devolución</button>
+      </div>
+    </app-ui-modal>
 
     <div class="glass-card p-3">
       @if (loading) { <div class="empty-state">Cargando...</div> }
@@ -86,6 +93,7 @@ export class ReturnsComponent {
   loading = true;
   page = 1;
   pageSize = 10;
+  newModalOpen = false;
   draft = { orderId: '', reason: '' };
 
   constructor(
@@ -106,6 +114,11 @@ export class ReturnsComponent {
     return this.store.snapshot.returns.slice(start, start + this.pageSize);
   }
 
+  openNew(): void {
+    this.draft = { orderId: '', reason: '' };
+    this.newModalOpen = true;
+  }
+
   create(): void {
     if (!this.draft.orderId.trim() || !this.draft.reason.trim()) {
       this.feedback.push('Pedido y motivo son obligatorios', 'Devoluciones', 'warning');
@@ -118,6 +131,7 @@ export class ReturnsComponent {
     this.audit.add({ entityType: 'Return', entityId: id, action: 'CREATE', summary: `Devolución ${id}` });
     this.feedback.push('Devolución creada', 'Devoluciones', 'success');
     this.draft = { orderId: '', reason: '' };
+    this.newModalOpen = false;
   }
 
   setStatus(record: ReturnRecord, next: ReturnStatus): void {

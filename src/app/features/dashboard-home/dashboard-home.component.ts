@@ -5,20 +5,21 @@ import { Order } from '../../core/models/entities';
 import { SessionStoreService } from '../../core/services/session-store.service';
 import { KpiCardComponent } from '../../shared/components/kpi-card/kpi-card.component';
 import { MonthlySalesChartComponent } from '../../shared/components/monthly-sales-chart/monthly-sales-chart.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-dashboard-home',
   standalone: true,
-  imports: [FormsModule, KpiCardComponent, MonthlySalesChartComponent, CurrencyPipe],
+  imports: [PageHeaderComponent, FormsModule, KpiCardComponent, MonthlySalesChartComponent, CurrencyPipe],
   template: `
     @if (isOperator) {
-      <div class="page-header"><i class="bi bi-house-door fs-4"></i><h2 class="section-title">Bienvenido</h2></div>
+      <app-page-header icon="bi-house-door" title="Bienvenido" />
       <div class="glass-card p-4">
         <h5 class="fw-semibold mb-2">Hola, {{ store.snapshot.currentUser?.displayName || 'Operador' }}</h5>
         <p class="text-secondary mb-0">Puede seleccionar cualquier opción del menú izquierdo para continuar.</p>
       </div>
     } @else {
-      <div class="page-header"><i class="bi bi-speedometer2 fs-4"></i><h2 class="section-title">{{ roleTitle }}</h2></div>
+      <app-page-header icon="bi-speedometer2" [title]="roleTitle" />
 
       <div class="glass-card p-3 mb-3">
         <div class="row g-2 align-items-end">

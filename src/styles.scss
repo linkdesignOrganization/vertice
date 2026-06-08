@@ -1,147 +1,205 @@
+/* ===== Inter (self-hosted, subset latin) ===== */
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/assets/fonts/inter-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 500; font-display: swap; src: url('/assets/fonts/inter-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/assets/fonts/inter-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 700; font-display: swap; src: url('/assets/fonts/inter-latin-700-normal.woff2') format('woff2'); }
+
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.68);
-  --glass-border: rgba(255, 255, 255, 0.32);
-  --text-main: #14213d;
-  --bg-main: #eef3f9;
-  --primary-grad: linear-gradient(135deg, #1f6feb, #1aa7a1);
+  /* ---------- Design tokens (Vértice) ---------- */
+  --vx-font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Marca: un único azul corporativo como acento */
+  --vx-primary: #1f5fbf;
+  --vx-primary-hover: #1a4f9e;
+  --vx-primary-rgb: 31, 95, 191;
+
+  /* Neutros / superficie */
+  --vx-bg: #f4f6f9;
+  --vx-surface: #ffffff;
+  --vx-surface-2: #f7f9fc;
+  --vx-border: #e2e8f0;
+  --vx-text: #1c2a3e;
+  --vx-text-muted: #5b6b82;
+
+  /* Estado (sobrios) */
+  --vx-success: #1f9d57; --vx-success-rgb: 31, 157, 87;
+  --vx-warning: #c77700; --vx-warning-rgb: 199, 119, 0;
+  --vx-danger: #d23f3f;  --vx-danger-rgb: 210, 63, 63;
+  --vx-info: #1f6f9c;    --vx-info-rgb: 31, 111, 156;
+
+  /* Radius escalonado (5 únicos en toda la app) */
+  --vx-radius-sm: .375rem;
+  --vx-radius: .5rem;
+  --vx-radius-lg: .75rem;
+  --vx-radius-xl: 1rem;
+
+  /* Sombras escalonadas */
+  --vx-shadow-sm: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+  --vx-shadow: 0 4px 12px rgba(16, 24, 40, .10);
+  --vx-shadow-lg: 0 16px 40px rgba(16, 24, 40, .18);
+
+  /* ---------- Alias de compatibilidad (clases/vars antiguas) ---------- */
+  --glass-bg: var(--vx-surface);
+  --glass-border: var(--vx-border);
+  --text-main: var(--vx-text);
+  --bg-main: var(--vx-bg);
+  --primary-grad: var(--vx-primary);
+
+  /* ---------- Re-tema de Bootstrap 5.3 (precompilado) vía --bs-* ---------- */
+  --bs-body-font-family: var(--vx-font-sans);
+  --bs-body-color: var(--vx-text);
+  --bs-body-bg: var(--vx-bg);
+  --bs-secondary-color: var(--vx-text-muted);
+  --bs-tertiary-color: var(--vx-text-muted);
+  --bs-emphasis-color: var(--vx-text);
+  --bs-border-color: var(--vx-border);
+  --bs-border-radius: var(--vx-radius);
+  --bs-border-radius-sm: var(--vx-radius-sm);
+  --bs-border-radius-lg: var(--vx-radius-lg);
+  --bs-border-radius-xl: var(--vx-radius-xl);
+  --bs-primary: var(--vx-primary);
+  --bs-primary-rgb: var(--vx-primary-rgb);
+  --bs-primary-text-emphasis: var(--vx-primary-hover);
+  --bs-link-color: var(--vx-primary);
+  --bs-link-color-rgb: var(--vx-primary-rgb);
+  --bs-link-hover-color: var(--vx-primary-hover);
+  --bs-success: var(--vx-success); --bs-success-rgb: var(--vx-success-rgb);
+  --bs-warning: var(--vx-warning); --bs-warning-rgb: var(--vx-warning-rgb);
+  --bs-danger: var(--vx-danger);   --bs-danger-rgb: var(--vx-danger-rgb);
+  --bs-info: var(--vx-info);       --bs-info-rgb: var(--vx-info-rgb);
 }
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 20% 10%, rgba(31, 111, 235, 0.18), transparent 32%),
-    radial-gradient(circle at 80% 18%, rgba(26, 167, 161, 0.16), transparent 28%),
-    radial-gradient(circle at 50% 90%, rgba(98, 154, 255, 0.12), transparent 30%),
-    var(--bg-main);
+  background: var(--vx-bg);
   min-height: 100vh;
-  color: var(--text-main);
+  color: var(--vx-text);
+  font-family: var(--vx-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* ---------- Botones (Bootstrap 5.3 "hornea" el color → set vars locales) ---------- */
+.btn-primary {
+  --bs-btn-bg: var(--vx-primary);
+  --bs-btn-border-color: var(--vx-primary);
+  --bs-btn-hover-bg: var(--vx-primary-hover);
+  --bs-btn-hover-border-color: var(--vx-primary-hover);
+  --bs-btn-active-bg: var(--vx-primary-hover);
+  --bs-btn-active-border-color: var(--vx-primary-hover);
+  --bs-btn-disabled-bg: var(--vx-primary);
+  --bs-btn-disabled-border-color: var(--vx-primary);
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--vx-primary);
+  --bs-btn-border-color: var(--vx-primary);
+  --bs-btn-hover-bg: var(--vx-primary);
+  --bs-btn-hover-border-color: var(--vx-primary);
+  --bs-btn-active-bg: var(--vx-primary);
+  --bs-btn-active-border-color: var(--vx-primary);
+}
+
+/* ---------- Superficies ---------- */
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  border-radius: 1rem;
-  box-shadow: 0 10px 30px rgba(19, 36, 62, 0.1);
+  background: var(--vx-surface);
+  border: 1px solid var(--vx-border);
+  border-radius: var(--vx-radius-lg);
+  box-shadow: var(--vx-shadow-sm);
 }
 
 .interactive-card {
-  transition: transform .2s ease, box-shadow .22s ease, background-color .22s ease, filter .22s ease;
+  transition: transform .18s ease, box-shadow .18s ease;
 }
-
 .interactive-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 18px 34px rgba(8, 16, 28, 0.32);
-  background: rgba(38, 47, 63, 0.84);
-  color: #e7ecf7;
-  filter: saturate(1.05);
+  transform: translateY(-2px);
+  box-shadow: var(--vx-shadow);
 }
 
-.interactive-card:hover .text-secondary,
-.interactive-card:hover small,
-.interactive-card:hover .section-title {
-  color: #c8d6f1 !important;
-}
+.app-shell { min-height: 100vh; }
 
-.app-shell {
-  min-height: 100vh;
-}
-
+/* ---------- Navegación lateral ---------- */
 .sidebar-link {
-  border-radius: 0.75rem;
-  color: #1c3356;
+  border-radius: var(--vx-radius);
+  color: var(--vx-text);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: .6rem;
   text-decoration: none;
-  padding: 0.65rem 0.85rem;
-  margin-bottom: 0.35rem;
+  padding: .6rem .8rem;
+  margin-bottom: .25rem;
+  font-weight: 500;
+  transition: background-color .15s ease, color .15s ease;
 }
-
-.sidebar-link:hover,
+.sidebar-link:hover {
+  background: var(--vx-surface-2);
+  color: var(--vx-text);
+}
 .sidebar-link.active {
-  background: rgba(31, 111, 235, 0.12);
-  color: #0f2f59;
+  background: rgba(var(--vx-primary-rgb), .1);
+  color: var(--vx-primary);
+  font-weight: 600;
 }
 
+/* ---------- Tipografía utilitaria ---------- */
 .kpi-value {
-  font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+  font-size: clamp(1.1rem, 1.5vw, 1.4rem);
   font-weight: 700;
-}
-
-.table thead th {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #4a6288;
+  letter-spacing: -.01em;
 }
 
 .section-title {
   font-weight: 700;
-  font-size: clamp(1.3rem, 1.7vw, 1.7rem);
+  font-size: clamp(1.25rem, 1.6vw, 1.6rem);
   line-height: 1.2;
+  letter-spacing: -.015em;
   margin-bottom: 0;
+  color: var(--vx-text);
 }
 
+/* ---------- Tablas ---------- */
+.table { --bs-table-hover-bg: var(--vx-surface-2); }
+.table thead th {
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-weight: 600;
+  color: var(--vx-text-muted);
+}
+
+/* ---------- Page header (markup encapsulado en PageHeaderComponent) ---------- */
 .page-header {
   display: flex;
-  gap: 0.75rem;
+  gap: .75rem;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
+.page-header .bi { color: var(--vx-primary); }
 
 .empty-state {
-  padding: 1.2rem;
+  padding: 1.5rem;
   text-align: center;
-  color: #4f627f;
+  color: var(--vx-text-muted);
 }
 
-.mobile-list {
-  display: grid;
-  gap: 0.75rem;
-}
-
+/* ---------- Listas mobile ---------- */
+.mobile-list { display: grid; gap: .75rem; }
 .mobile-list-card {
-  border: 1px solid rgba(120, 140, 175, 0.25);
-  border-radius: 0.85rem;
-  background: rgba(255, 255, 255, 0.78);
-  padding: 0.75rem;
+  border: 1px solid var(--vx-border);
+  border-radius: var(--vx-radius);
+  background: var(--vx-surface);
+  padding: .85rem;
 }
+.mobile-list-title { font-weight: 600; margin-bottom: .3rem; }
+.mobile-list-kv { display: grid; grid-template-columns: 1fr; gap: .25rem; font-size: .9rem; }
+.mobile-list-kv > div { display: flex; justify-content: space-between; gap: .75rem; }
+.mobile-list-kv > div span:first-child { color: var(--vx-text-muted); }
+.mobile-list-actions { display: flex; gap: .45rem; margin-top: .65rem; flex-wrap: wrap; }
 
-.mobile-list-title {
-  font-weight: 700;
-  margin-bottom: 0.3rem;
-}
-
-.mobile-list-kv {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.2rem;
-  font-size: 0.9rem;
-}
-
-.mobile-list-kv > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.mobile-list-kv > div span:first-child {
-  color: #4f627f;
-}
-
-.mobile-list-actions {
-  display: flex;
-  gap: 0.45rem;
-  margin-top: 0.65rem;
-  flex-wrap: wrap;
-}
+/* ---------- Scroll-lock cuando hay un modal abierto (UiModalComponent) ---------- */
+.modal-open-lock { overflow: hidden; }
 
 @media (max-width: 991px) {
-  .desktop-sidebar {
-    display: none;
-  }
+  .desktop-sidebar { display: none; }
 
   .btn,
   .form-control,
@@ -149,15 +207,9 @@ body {
     min-height: 44px;
   }
 
-  .btn.btn-sm {
-    min-height: 38px;
-  }
+  .btn.btn-sm { min-height: 38px; }
 
-  .glass-card {
-    border-radius: 0.85rem;
-  }
+  .glass-card { border-radius: var(--vx-radius); }
 
-  .page-header {
-    margin-bottom: 0.75rem;
-  }
+  .page-header { margin-bottom: 1rem; }
 }

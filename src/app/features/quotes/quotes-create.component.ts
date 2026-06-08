@@ -6,6 +6,8 @@ import { Customer, Quote, QuoteLine, Sku } from '../../core/models/entities';
 import { AuditService } from '../../core/services/audit.service';
 import { SessionStoreService } from '../../core/services/session-store.service';
 import { UiFeedbackService } from '../../core/services/ui-feedback.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { UiModalComponent } from '../../shared/components/ui-modal/ui-modal.component';
 
 interface DraftLine {
   skuId: string;
@@ -18,34 +20,18 @@ interface DraftLine {
 @Component({
   selector: 'app-quotes-create',
   standalone: true,
-  imports: [FormsModule, CurrencyPipe],
+  imports: [PageHeaderComponent, UiModalComponent, FormsModule, CurrencyPipe],
   styles: [
-    '.customer-modal-overlay { position: fixed !important; inset: 0; width: 100vw; height: 100dvh; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem; }',
-    '.customer-modal-backdrop { position: fixed; inset: 0; background: rgba(8,12,20,.52); }',
-    '.customer-modal-dialog { position: relative; z-index: 2001; width: min(860px, 96vw); margin: 0 auto; }',
-    '.customer-modal-card { background: #fff; border-radius: .95rem; box-shadow: 0 20px 44px rgba(0,0,0,.28); max-height: min(90dvh, 860px); display: flex; flex-direction: column; overflow: hidden; }',
-    '.sku-modal-overlay { position: fixed !important; inset: 0; width: 100vw; height: 100dvh; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem; }',
-    '.sku-modal-backdrop { position: fixed; inset: 0; background: rgba(8,12,20,.52); }',
-    '.sku-modal-dialog { position: relative; z-index: 2001; width: min(860px, 96vw); margin: 0 auto; }',
-    '.sku-modal-card { background: #fff; border-radius: .95rem; box-shadow: 0 20px 44px rgba(0,0,0,.28); max-height: min(90dvh, 860px); display: flex; flex-direction: column; overflow: hidden; }',
-    '.catalog-modal-head { flex: 0 0 auto; }',
-    '.catalog-modal-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }',
-    '.catalog-list-scroll { max-height: min(58dvh, 520px); overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }',
+    '.catalog-list-scroll { max-height: 56vh; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }',
     '.quote-action-btn { width: 100%; }',
-    '@media (min-width: 768px) { .quote-action-btn { width: auto; } }',
-    '@media (max-width: 991px) { .customer-modal-overlay, .sku-modal-overlay { padding: .6rem; align-items: center; } .customer-modal-dialog, .sku-modal-dialog { width: 100%; } .customer-modal-card, .sku-modal-card { max-height: calc(100dvh - 1.2rem); } .catalog-list-scroll { max-height: calc(100dvh - 260px); } }',
-    '@media (max-width: 767px) { .customer-modal-overlay, .sku-modal-overlay { align-items: center; } .customer-modal-card, .sku-modal-card { border-radius: .9rem; } .catalog-list-scroll { max-height: calc(100dvh - 240px); } }'
+    '@media (min-width: 768px) { .quote-action-btn { width: auto; } }'
   ],
   template: `
-    <div class="page-header justify-content-between">
-      <div class="d-flex align-items-center gap-2">
-        <i class="bi bi-file-earmark-plus fs-4"></i>
-        <h2 class="section-title">Nueva cotización</h2>
-      </div>
+    <app-page-header icon="bi-file-earmark-plus" title="Nueva cotización">
       <button class="btn btn-outline-secondary btn-sm d-lg-none" type="button" (click)="goBack()">
         <i class="bi bi-arrow-left me-1"></i>Atrás
       </button>
-    </div>
+    </app-page-header>
 
     <div class="glass-card p-3 mb-3">
       <div class="row g-3">
@@ -184,168 +170,138 @@ interface DraftLine {
       </div>
     </div>
 
-    @if (customerModalOpen) {
-      <div class="customer-modal-overlay" tabindex="-1" role="dialog" aria-modal="true">
-        <div class="customer-modal-backdrop" (click)="closeCustomerModal()"></div>
-        <div class="customer-modal-dialog">
-          <div class="customer-modal-card p-3">
-            <div class="catalog-modal-head">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h5 class="mb-0"><i class="bi bi-people me-1"></i>Listado de clientes</h5>
-              <button class="btn btn-dark btn-sm" (click)="closeCustomerModal()">Cerrar</button>
-            </div>
-            </div>
-            <div class="catalog-modal-body">
-            <div class="row g-2 mb-2">
-              <div class="col-md-8">
-                <input class="form-control" placeholder="Buscar por empresa, contacto o correo" [(ngModel)]="customerModalSearch" />
-              </div>
-              <div class="col-md-4 text-md-end">
-                <small class="text-secondary">Mostrando {{ modalCustomers.length }} clientes</small>
-              </div>
-            </div>
-            <div class="catalog-list-scroll">
-              <div class="table-responsive border rounded d-none d-lg-block">
-                <table class="table table-sm table-hover align-middle mb-0">
-                  <thead class="table-light" style="position: sticky; top: 0;">
-                    <tr>
-                      <th>ID</th>
-                      <th>Empresa</th>
-                      <th>Contacto</th>
-                      <th>Correo</th>
-                      <th class="text-end">Acción</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (c of modalCustomers; track c.id) {
-                      <tr>
-                        <td><code>{{ c.id }}</code></td>
-                        <td>{{ c.legalName }}</td>
-                        <td>{{ c.contactName }}</td>
-                        <td>{{ c.companyEmail }}</td>
-                        <td class="text-end">
-                          @if (isCustomerSelected(c.id)) {
-                            <button class="btn btn-sm btn-success" type="button" disabled>
-                              <i class="bi bi-check2-circle me-1"></i>Seleccionado
-                            </button>
-                          } @else {
-                            <button class="btn btn-sm btn-outline-primary" (click)="selectCustomerFromModal(c)">
-                              <i class="bi bi-person-check me-1"></i>Seleccionar
-                            </button>
-                          }
-                        </td>
-                      </tr>
+    <app-ui-modal [open]="customerModalOpen" title="Listado de clientes" size="lg" (close)="closeCustomerModal()">
+      <div class="row g-2 mb-2">
+        <div class="col-md-8">
+          <input class="form-control" placeholder="Buscar por empresa, contacto o correo" [(ngModel)]="customerModalSearch" />
+        </div>
+        <div class="col-md-4 text-md-end">
+          <small class="text-secondary">Mostrando {{ modalCustomers.length }} clientes</small>
+        </div>
+      </div>
+      <div class="catalog-list-scroll">
+        <div class="table-responsive border rounded d-none d-lg-block">
+          <table class="table table-sm table-hover align-middle mb-0">
+            <thead class="table-light" style="position: sticky; top: 0;">
+              <tr>
+                <th>ID</th>
+                <th>Empresa</th>
+                <th>Contacto</th>
+                <th>Correo</th>
+                <th class="text-end">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of modalCustomers; track c.id) {
+                <tr>
+                  <td><code>{{ c.id }}</code></td>
+                  <td>{{ c.legalName }}</td>
+                  <td>{{ c.contactName }}</td>
+                  <td>{{ c.companyEmail }}</td>
+                  <td class="text-end">
+                    @if (isCustomerSelected(c.id)) {
+                      <button class="btn btn-sm btn-success" type="button" disabled>
+                        <i class="bi bi-check2-circle me-1"></i>Seleccionado
+                      </button>
+                    } @else {
+                      <button class="btn btn-sm btn-outline-primary" (click)="selectCustomerFromModal(c)">
+                        <i class="bi bi-person-check me-1"></i>Seleccionar
+                      </button>
                     }
-                  </tbody>
-                </table>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="mobile-list d-lg-none">
+          @for (c of modalCustomers; track c.id) {
+            <div class="mobile-list-card">
+              <div class="mobile-list-title">{{ c.legalName }}</div>
+              <div class="mobile-list-kv">
+                <div><span>ID</span><code>{{ c.id }}</code></div>
+                <div><span>Contacto</span><span>{{ c.contactName }}</span></div>
+                <div><span>Correo</span><span>{{ c.companyEmail }}</span></div>
               </div>
-              <div class="mobile-list d-lg-none">
-                @for (c of modalCustomers; track c.id) {
-                  <div class="mobile-list-card">
-                    <div class="mobile-list-title">{{ c.legalName }}</div>
-                    <div class="mobile-list-kv">
-                      <div><span>ID</span><code>{{ c.id }}</code></div>
-                      <div><span>Contacto</span><span>{{ c.contactName }}</span></div>
-                      <div><span>Correo</span><span>{{ c.companyEmail }}</span></div>
-                    </div>
-                    <div class="mobile-list-actions">
-                      @if (isCustomerSelected(c.id)) {
-                        <button class="btn btn-sm btn-success" type="button" disabled><i class="bi bi-check2-circle me-1"></i>Seleccionado</button>
-                      } @else {
-                        <button class="btn btn-sm btn-outline-primary" (click)="selectCustomerFromModal(c)"><i class="bi bi-person-check me-1"></i>Seleccionar</button>
-                      }
-                    </div>
-                  </div>
+              <div class="mobile-list-actions">
+                @if (isCustomerSelected(c.id)) {
+                  <button class="btn btn-sm btn-success" type="button" disabled><i class="bi bi-check2-circle me-1"></i>Seleccionado</button>
+                } @else {
+                  <button class="btn btn-sm btn-outline-primary" (click)="selectCustomerFromModal(c)"><i class="bi bi-person-check me-1"></i>Seleccionar</button>
                 }
               </div>
             </div>
-            <div class="small text-secondary mt-2">Solo se permite 1 cliente por cotización.</div>
-            </div>
-          </div>
+          }
         </div>
       </div>
-    }
+      <div class="small text-secondary mt-2">Solo se permite 1 cliente por cotización.</div>
+    </app-ui-modal>
 
-    @if (skuModalOpen) {
-      <div class="sku-modal-overlay" tabindex="-1" role="dialog" aria-modal="true">
-        <div class="sku-modal-backdrop" (click)="closeSkuModal()"></div>
-        <div class="sku-modal-dialog">
-          <div class="sku-modal-card p-3">
-            <div class="catalog-modal-head">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h5 class="mb-0"><i class="bi bi-box-seam me-1"></i>Catálogo de productos (SKU)</h5>
-              <button class="btn btn-dark btn-sm" (click)="closeSkuModal()">Cerrar</button>
-            </div>
-            </div>
-            <div class="catalog-modal-body">
-            <div class="row g-2 mb-2">
-              <div class="col-md-8">
-                <input class="form-control" placeholder="Buscar por SKU, nombre o familia" [(ngModel)]="skuModalSearch" />
-              </div>
-              <div class="col-md-4 text-md-end">
-                <small class="text-secondary">Mostrando {{ modalSkus.length }} productos</small>
-              </div>
-            </div>
-            <div class="catalog-list-scroll">
-              <div class="table-responsive border rounded d-none d-lg-block">
-                <table class="table table-sm table-hover align-middle mb-0">
-                  <thead class="table-light" style="position: sticky; top: 0;">
-                    <tr>
-                      <th>SKU</th>
-                      <th>Producto</th>
-                      <th>Familia</th>
-                      <th>Precio</th>
-                      <th class="text-end">Acción</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (sku of modalSkus; track sku.id) {
-                      <tr>
-                        <td><code>{{ sku.code }}</code></td>
-                        <td>{{ sku.name }}</td>
-                        <td>{{ sku.family }}</td>
-                        <td>{{ sku.salePriceUSD | currency:'USD' }}</td>
-                        <td class="text-end">
-                          @if (isSkuAdded(sku.id)) {
-                            <button class="btn btn-sm btn-success" type="button" disabled>
-                              <i class="bi bi-check2-circle me-1"></i>Agregado
-                            </button>
-                          } @else {
-                            <button class="btn btn-sm btn-outline-primary" (click)="addSkuFromModal(sku)">
-                              <i class="bi bi-plus-circle me-1"></i>Agregar
-                            </button>
-                          }
-                        </td>
-                      </tr>
+    <app-ui-modal [open]="skuModalOpen" title="Catálogo de productos (SKU)" size="lg" (close)="closeSkuModal()">
+      <div class="row g-2 mb-2">
+        <div class="col-md-8">
+          <input class="form-control" placeholder="Buscar por SKU, nombre o familia" [(ngModel)]="skuModalSearch" />
+        </div>
+        <div class="col-md-4 text-md-end">
+          <small class="text-secondary">Mostrando {{ modalSkus.length }} productos</small>
+        </div>
+      </div>
+      <div class="catalog-list-scroll">
+        <div class="table-responsive border rounded d-none d-lg-block">
+          <table class="table table-sm table-hover align-middle mb-0">
+            <thead class="table-light" style="position: sticky; top: 0;">
+              <tr>
+                <th>SKU</th>
+                <th>Producto</th>
+                <th>Familia</th>
+                <th>Precio</th>
+                <th class="text-end">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (sku of modalSkus; track sku.id) {
+                <tr>
+                  <td><code>{{ sku.code }}</code></td>
+                  <td>{{ sku.name }}</td>
+                  <td>{{ sku.family }}</td>
+                  <td>{{ sku.salePriceUSD | currency:'USD' }}</td>
+                  <td class="text-end">
+                    @if (isSkuAdded(sku.id)) {
+                      <button class="btn btn-sm btn-success" type="button" disabled>
+                        <i class="bi bi-check2-circle me-1"></i>Agregado
+                      </button>
+                    } @else {
+                      <button class="btn btn-sm btn-outline-primary" (click)="addSkuFromModal(sku)">
+                        <i class="bi bi-plus-circle me-1"></i>Agregar
+                      </button>
                     }
-                  </tbody>
-                </table>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="mobile-list d-lg-none">
+          @for (sku of modalSkus; track sku.id) {
+            <div class="mobile-list-card">
+              <div class="mobile-list-title">{{ sku.name }}</div>
+              <div class="mobile-list-kv">
+                <div><span>SKU</span><code>{{ sku.code }}</code></div>
+                <div><span>Familia</span><span>{{ sku.family }}</span></div>
+                <div><span>Precio</span><strong>{{ sku.salePriceUSD | currency:'USD' }}</strong></div>
               </div>
-              <div class="mobile-list d-lg-none">
-                @for (sku of modalSkus; track sku.id) {
-                  <div class="mobile-list-card">
-                    <div class="mobile-list-title">{{ sku.name }}</div>
-                    <div class="mobile-list-kv">
-                      <div><span>SKU</span><code>{{ sku.code }}</code></div>
-                      <div><span>Familia</span><span>{{ sku.family }}</span></div>
-                      <div><span>Precio</span><strong>{{ sku.salePriceUSD | currency:'USD' }}</strong></div>
-                    </div>
-                    <div class="mobile-list-actions">
-                      @if (isSkuAdded(sku.id)) {
-                        <button class="btn btn-sm btn-success" type="button" disabled><i class="bi bi-check2-circle me-1"></i>Agregado</button>
-                      } @else {
-                        <button class="btn btn-sm btn-outline-primary" (click)="addSkuFromModal(sku)"><i class="bi bi-plus-circle me-1"></i>Agregar</button>
-                      }
-                    </div>
-                  </div>
+              <div class="mobile-list-actions">
+                @if (isSkuAdded(sku.id)) {
+                  <button class="btn btn-sm btn-success" type="button" disabled><i class="bi bi-check2-circle me-1"></i>Agregado</button>
+                } @else {
+                  <button class="btn btn-sm btn-outline-primary" (click)="addSkuFromModal(sku)"><i class="bi bi-plus-circle me-1"></i>Agregar</button>
                 }
               </div>
             </div>
-          </div>
-        </div>
+          }
         </div>
       </div>
-    }
+    </app-ui-modal>
   `
 })
 export class QuotesCreateComponent {
@@ -370,7 +326,7 @@ export class QuotesCreateComponent {
   private normalize(value: string): string {
     return value
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[̀-ͯ]/g, '')
       .toLowerCase()
       .trim();
   }

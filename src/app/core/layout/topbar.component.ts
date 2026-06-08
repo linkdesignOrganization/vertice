@@ -13,7 +13,7 @@ import { UserMenuModalService } from '../services/user-menu-modal.service';
     '.topbar-actions { display: flex; align-items: center; gap: .5rem; flex: 0 0 auto; position: relative; z-index: 2; }',
     '.user-menu-btn { background: transparent; border-color: transparent; min-height: 42px; min-width: 118px; padding: .35rem .75rem; justify-content: center; }',
     '.user-menu-btn:hover, .user-menu-btn:active { background: transparent; border-color: transparent; box-shadow: none; }',
-    '.user-menu-btn:focus-visible { outline: 2px solid #1f6feb; outline-offset: 2px; border-radius: .6rem; }',
+    '.user-menu-btn:focus-visible { outline: 2px solid var(--vx-primary); outline-offset: 2px; border-radius: var(--vx-radius); }',
     '.user-menu-btn i, .user-menu-btn span { pointer-events: none; }',
     '@media (max-width: 576px) { .brand-logo { min-width: 96px; height: 24px; } .user-menu-btn { min-width: 74px; padding: .35rem .55rem; } }'
   ],

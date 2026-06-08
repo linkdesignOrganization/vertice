@@ -8,7 +8,7 @@ import { SignaturePadComponent } from '../signature-pad/signature-pad.component'
   standalone: true,
   imports: [CommonModule, FormsModule, SignaturePadComponent],
   styles: [
-    '.mobile-camera-card { border: 1px dashed rgba(31,111,235,.45); border-radius: .9rem; background: rgba(31,111,235,.06); padding: .9rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: .6rem; font-weight: 600; color: #1c3f74; }',
+    '.mobile-camera-card { border: 1px dashed rgba(var(--vx-primary-rgb), .45); border-radius: var(--vx-radius-lg); background: rgba(var(--vx-primary-rgb), .06); padding: .9rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: .6rem; font-weight: 600; color: var(--vx-primary); }',
     '.mobile-camera-card i { font-size: 1.15rem; }',
     '.photo-preview { max-width: 220px; }',
     '.signature-block { margin-bottom: .5rem; }',

@@ -3,13 +3,14 @@ import { FormsModule } from '@angular/forms';
 import { SessionStoreService } from '../../core/services/session-store.service';
 import { UiFeedbackService } from '../../core/services/ui-feedback.service';
 import { KpiCardComponent } from '../../shared/components/kpi-card/kpi-card.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [FormsModule, KpiCardComponent],
+  imports: [PageHeaderComponent, FormsModule, KpiCardComponent],
   template: `
-    <div class="page-header"><i class="bi bi-bar-chart-line fs-4"></i><h2 class="section-title">Reportes</h2></div>
+    <app-page-header icon="bi-bar-chart-line" title="Reportes" />
 
     <div class="glass-card p-3 mb-3">
       <div class="row g-2 align-items-end">

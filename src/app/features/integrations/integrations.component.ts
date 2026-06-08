@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 @Component({
   selector: 'app-integrations',
   standalone: true,
-  imports: [],
+  imports: [PageHeaderComponent],
   template: `
-    <div class="page-header"><i class="bi bi-diagram-3 fs-4"></i><h2 class="section-title">Integraciones (vista)</h2></div>
+    <app-page-header icon="bi-diagram-3" title="Integraciones (vista)" />
     <div class="row g-3">
       <div class="col-md-4">
         <div class="glass-card p-3 h-100">

@@ -6,27 +6,34 @@ import { CustomerProfileModalService } from '../../core/services/customer-profil
 import { AuditService } from '../../core/services/audit.service';
 import { SessionStoreService } from '../../core/services/session-store.service';
 import { UiFeedbackService } from '../../core/services/ui-feedback.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { UiModalComponent } from '../../shared/components/ui-modal/ui-modal.component';
 
 @Component({
   selector: 'app-crm',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PageHeaderComponent, UiModalComponent],
   template: `
-    <div class="page-header"><i class="bi bi-people-fill fs-4"></i><h2 class="section-title">CRM</h2></div>
+    <app-page-header icon="bi-people-fill" title="CRM">
+      <button class="btn btn-primary" (click)="openNew()"><i class="bi bi-plus-circle me-1"></i>Nuevo cliente</button>
+    </app-page-header>
 
-    <div class="glass-card p-3 mb-3">
-      <div class="row g-2 align-items-end">
-        <div class="col-12 col-lg-3"><label class="form-label">Cliente</label><input class="form-control" [(ngModel)]="draft.legalName" /></div>
-        <div class="col-12 col-lg-2"><label class="form-label">Contacto</label><input class="form-control" [(ngModel)]="draft.contactName" /></div>
-        <div class="col-6 col-lg-2"><label class="form-label">Lista</label><select class="form-select" [(ngModel)]="draft.priceList"><option>Retail</option><option>Empresa</option><option>Mayorista</option></select></div>
-        <div class="col-6 col-lg-2"><label class="form-label">Término</label><select class="form-select" [(ngModel)]="draft.paymentTerm"><option>Contado</option><option>Net 15</option><option>Net 30</option></select></div>
-        <div class="col-6 col-lg-2"><label class="form-label">Correo empresa</label><input class="form-control" [(ngModel)]="draft.companyEmail" /></div>
-        <div class="col-6 col-lg-2"><label class="form-label">Puesto</label><input class="form-control" [(ngModel)]="draft.contactPosition" /></div>
-        <div class="col-6 col-lg-1"><label class="form-label">Seller</label><input class="form-control" [(ngModel)]="draft.sellerId" /></div>
-        <div class="col-6 col-lg-2"><button class="btn btn-primary w-100" (click)="save()"><i class="bi bi-save"></i> Guardar</button></div>
+    <app-ui-modal [open]="modalOpen" [title]="draft.id ? 'Editar cliente' : 'Nuevo cliente'" size="lg" [hasFooter]="true" (close)="modalOpen=false">
+      <div class="row g-3">
+        <div class="col-12 col-lg-6"><label class="form-label">Cliente</label><input class="form-control" [(ngModel)]="draft.legalName" /></div>
+        <div class="col-12 col-lg-6"><label class="form-label">Contacto</label><input class="form-control" [(ngModel)]="draft.contactName" /></div>
+        <div class="col-6 col-lg-4"><label class="form-label">Lista</label><select class="form-select" [(ngModel)]="draft.priceList"><option>Retail</option><option>Empresa</option><option>Mayorista</option></select></div>
+        <div class="col-6 col-lg-4"><label class="form-label">Término</label><select class="form-select" [(ngModel)]="draft.paymentTerm"><option>Contado</option><option>Net 15</option><option>Net 30</option></select></div>
+        <div class="col-6 col-lg-4"><label class="form-label">Seller</label><input class="form-control" [(ngModel)]="draft.sellerId" /></div>
+        <div class="col-12 col-lg-6"><label class="form-label">Correo empresa</label><input class="form-control" [(ngModel)]="draft.companyEmail" /></div>
+        <div class="col-12 col-lg-6"><label class="form-label">Puesto</label><input class="form-control" [(ngModel)]="draft.contactPosition" /></div>
       </div>
-      <small class="text-secondary d-block mt-2"><i class="bi bi-receipt"></i> Impuesto visible: 13%</small>
-    </div>
+      <small class="text-secondary d-block mt-3"><i class="bi bi-receipt me-1"></i>Impuesto visible: 13%</small>
+      <div modal-footer>
+        <button class="btn btn-outline-secondary" (click)="modalOpen=false">Cancelar</button>
+        <button class="btn btn-primary" (click)="save()"><i class="bi bi-save me-1"></i>Guardar</button>
+      </div>
+    </app-ui-modal>
 
     <div class="glass-card p-3">
       <div class="row g-2 align-items-end mb-2">
@@ -93,6 +100,7 @@ export class CrmComponent {
   sortDir: 'asc' | 'desc' = 'asc';
   page = 1;
   pageSize = 10;
+  modalOpen = false;
 
   draft: Partial<Customer> = { priceList: 'Retail', paymentTerm: 'Contado', taxPct: 13, sellerId: 'U-0003', contactName: 'Sin asignar', companyEmail: '', contactPosition: 'Encargado de Compras' };
 
@@ -103,6 +111,10 @@ export class CrmComponent {
     private readonly customerModal: CustomerProfileModalService
   ) {
     setTimeout(() => (this.loading = false), 300);
+  }
+
+  private resetDraft(): Partial<Customer> {
+    return { priceList: 'Retail', paymentTerm: 'Contado', taxPct: 13, sellerId: 'U-0003', contactName: 'Sin asignar', companyEmail: '', contactPosition: 'Encargado de Compras' };
   }
 
   get rows(): Customer[] {
@@ -126,6 +138,11 @@ export class CrmComponent {
     return this.rows.slice(start, start + this.pageSize);
   }
 
+  openNew(): void {
+    this.draft = this.resetDraft();
+    this.modalOpen = true;
+  }
+
   save(): void {
     if (!this.draft.legalName || !this.draft.sellerId || !this.draft.priceList || !this.draft.paymentTerm) {
       this.feedback.push('Complete los campos requeridos', 'CRM', 'warning');
@@ -135,7 +152,7 @@ export class CrmComponent {
     const id = this.draft.id ?? `C-${String(this.store.snapshot.customers.length + 1).padStart(4, '0')}`;
     const normalized = this.draft.legalName
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[̀-ͯ]/g, '')
       .toLowerCase()
       .replace(/[^a-z0-9]/g, '');
     const topDomain = ((this.store.snapshot.customers.length + 1) % 2 === 0) ? 'com' : 'cr';
@@ -152,13 +169,15 @@ export class CrmComponent {
     };
 
     this.store.updateState((s) => ({ ...s, customers: s.customers.some((c) => c.id === id) ? s.customers.map((c) => (c.id === id ? record : c)) : [record, ...s.customers] }));
-    this.draft = { priceList: 'Retail', paymentTerm: 'Contado', taxPct: 13, sellerId: 'U-0003', contactName: 'Sin asignar', companyEmail: '', contactPosition: 'Encargado de Compras' };
+    this.draft = this.resetDraft();
     this.audit.add({ entityType: 'Customer', entityId: id, action: 'UPSERT', summary: `Cliente ${id} guardado` });
     this.feedback.push('Cliente guardado', 'CRM', 'success');
+    this.modalOpen = false;
   }
 
   edit(customer: Customer): void {
     this.draft = { ...customer };
+    this.modalOpen = true;
   }
 
   openProfile(customer: Customer): void {

@@ -6,13 +6,19 @@ import { InventoryCalculationService } from '../../core/services/inventory-calcu
 import { RuleEngineService } from '../../core/services/rule-engine.service';
 import { SessionStoreService } from '../../core/services/session-store.service';
 import { StatusChipComponent } from '../../shared/components/status-chip/status-chip.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { UiModalComponent } from '../../shared/components/ui-modal/ui-modal.component';
 
 @Component({
   selector: 'app-inventory',
   standalone: true,
-  imports: [FormsModule, StatusChipComponent, DatePipe],
+  imports: [FormsModule, StatusChipComponent, DatePipe, PageHeaderComponent, UiModalComponent],
   template: `
-    <div class="page-header"><i class="bi bi-box-seam fs-4"></i><h2 class="section-title">Inventario</h2></div>
+    <app-page-header icon="bi-box-seam" title="Inventario">
+      @if (tab==='trans') {
+        <button class="btn btn-primary" (click)="openTransfer()"><i class="bi bi-plus-circle me-1"></i>Nueva transferencia</button>
+      }
+    </app-page-header>
 
     <ul class="nav nav-pills mb-3">
       <li class="nav-item"><button class="nav-link" [class.active]="tab==='stock'" (click)="tab='stock'">Stock</button></li>
@@ -78,14 +84,6 @@ import { StatusChipComponent } from '../../shared/components/status-chip/status-
 
     @if (tab==='trans') {
       <div class="glass-card p-3">
-        <div class="row g-2 align-items-end mb-2">
-          <div class="col-md-3"><label class="form-label">Desde</label><select class="form-select" [(ngModel)]="draft.fromLocationId">@for (l of store.snapshot.locations; track l.id) { <option [value]="l.id">{{ l.name }}</option> }</select></div>
-          <div class="col-md-3"><label class="form-label">Hacia</label><select class="form-select" [(ngModel)]="draft.toLocationId">@for (l of store.snapshot.locations; track l.id) { <option [value]="l.id">{{ l.name }}</option> }</select></div>
-          <div class="col-md-3"><label class="form-label">SKU</label><select class="form-select" [(ngModel)]="draft.skuId">@for (s of store.snapshot.skus.slice(0,80); track s.id) { <option [value]="s.id">{{ s.code }}</option> }</select></div>
-          <div class="col-md-2"><label class="form-label">Cantidad</label><input class="form-control" type="number" [(ngModel)]="draft.qty" /></div>
-          <div class="col-md-1"><button class="btn btn-primary w-100" (click)="createTransfer()"><i class="bi bi-plus"></i></button></div>
-        </div>
-
         <ul class="list-group list-group-flush">
           @for (t of store.snapshot.transfers.slice(0, 40); track t.id) {
             <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -96,6 +94,9 @@ import { StatusChipComponent } from '../../shared/components/status-chip/status-
                 <button class="btn btn-sm btn-outline-danger" (click)="removeTransfer(t.id)"><i class="bi bi-trash"></i></button>
               </div>
             </li>
+          }
+          @if (!store.snapshot.transfers.length) {
+            <li class="list-group-item bg-transparent"><div class="empty-state">Aún no hay transferencias. Creá una con "Nueva transferencia".</div></li>
           }
         </ul>
       </div>
@@ -108,15 +109,29 @@ import { StatusChipComponent } from '../../shared/components/status-chip/status-
           <ul class="mb-0">@for (family of families; track family) { <li>IMP-2026-{{ family }}: sugerencia de reposición</li> }</ul>
         </div>
       } @else {
-        <div class="glass-card p-3"><span class="badge text-bg-secondary"><i class="bi bi-lock"></i> No disponible para OPERADOR</span></div>
+        <div class="glass-card p-3"><span class="badge text-bg-secondary"><i class="bi bi-lock me-1"></i>No disponible para OPERADOR</span></div>
       }
     }
+
+    <app-ui-modal [open]="transModalOpen" title="Nueva transferencia" size="md" [hasFooter]="true" (close)="transModalOpen=false">
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Desde</label><select class="form-select" [(ngModel)]="draft.fromLocationId">@for (l of store.snapshot.locations; track l.id) { <option [value]="l.id">{{ l.name }}</option> }</select></div>
+        <div class="col-md-6"><label class="form-label">Hacia</label><select class="form-select" [(ngModel)]="draft.toLocationId">@for (l of store.snapshot.locations; track l.id) { <option [value]="l.id">{{ l.name }}</option> }</select></div>
+        <div class="col-md-8"><label class="form-label">SKU</label><select class="form-select" [(ngModel)]="draft.skuId">@for (s of store.snapshot.skus.slice(0,80); track s.id) { <option [value]="s.id">{{ s.code }}</option> }</select></div>
+        <div class="col-md-4"><label class="form-label">Cantidad</label><input class="form-control" type="number" min="1" [(ngModel)]="draft.qty" /></div>
+      </div>
+      <div modal-footer>
+        <button class="btn btn-outline-secondary" (click)="transModalOpen=false">Cancelar</button>
+        <button class="btn btn-primary" (click)="createTransfer()"><i class="bi bi-plus-circle me-1"></i>Crear transferencia</button>
+      </div>
+    </app-ui-modal>
   `
 })
 export class InventoryComponent {
   tab: 'stock' | 'mov' | 'trans' | 'imp' = 'stock';
   loading = true;
   stockSearch = '';
+  transModalOpen = false;
   families = ['EPP', 'Caídas', 'Instrumentos', 'Señalización', 'Derrames/Químicos', 'Consumibles mantenimiento'];
   draft = { fromLocationId: 'LOC-001', toLocationId: 'LOC-002', skuId: 'SKU-0001', qty: 5 };
 
@@ -136,7 +151,7 @@ export class InventoryComponent {
   get filteredStockRows() {
     const q = this.stockSearch
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[̀-ͯ]/g, '')
       .toLowerCase()
       .trim();
 
@@ -145,7 +160,7 @@ export class InventoryComponent {
     return this.stockRows.filter((row) => {
       const haystack = `${row.sku.code} ${row.sku.name} ${row.sku.family}`
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[̀-ͯ]/g, '')
         .toLowerCase();
       return haystack.includes(q);
     });
@@ -153,6 +168,11 @@ export class InventoryComponent {
 
   available(onHand: number, reserved: number): number {
     return this.inventoryCalc.qtyAvailable(onHand, reserved);
+  }
+
+  openTransfer(): void {
+    this.draft = { fromLocationId: 'LOC-001', toLocationId: 'LOC-002', skuId: 'SKU-0001', qty: 5 };
+    this.transModalOpen = true;
   }
 
   createTransfer(): void {
@@ -167,6 +187,7 @@ export class InventoryComponent {
       createdAt: new Date().toISOString()
     };
     this.store.upsertTransfer(t);
+    this.transModalOpen = false;
   }
 
   setTransferStatus(id: string, status: 'Programada' | 'En traslado' | 'Recibida'): void {

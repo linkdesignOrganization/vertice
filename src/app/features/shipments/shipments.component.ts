@@ -3,13 +3,14 @@ import { Router } from '@angular/router';
 import { Shipment } from '../../core/models/entities';
 import { SessionStoreService } from '../../core/services/session-store.service';
 import { StatusChipComponent } from '../../shared/components/status-chip/status-chip.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-shipments',
   standalone: true,
-  imports: [StatusChipComponent],
+  imports: [PageHeaderComponent, StatusChipComponent],
   template: `
-    <div class="page-header"><i class="bi bi-truck fs-4"></i><h2 class="section-title">Despachos</h2></div>
+    <app-page-header icon="bi-truck" title="Despachos" />
 
     <div class="glass-card p-3">
       <h6 class="fw-bold"><i class="bi bi-list-ul me-1"></i>Cola de despachos</h6>

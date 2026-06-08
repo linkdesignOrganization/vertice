@@ -5,13 +5,14 @@ import { Order } from '../../core/models/entities';
 import { OrderDetailModalService } from '../../core/services/order-detail-modal.service';
 import { SessionStoreService } from '../../core/services/session-store.service';
 import { StatusChipComponent } from '../../shared/components/status-chip/status-chip.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [FormsModule, StatusChipComponent, CurrencyPipe, DatePipe],
+  imports: [PageHeaderComponent, FormsModule, StatusChipComponent, CurrencyPipe, DatePipe],
   template: `
-    <div class="page-header"><i class="bi bi-cart-check fs-4"></i><h2 class="section-title">Pedidos</h2></div>
+    <app-page-header icon="bi-cart-check" title="Pedidos" />
 
     <div class="glass-card p-3 mb-3">
       <div class="row g-2 align-items-end">

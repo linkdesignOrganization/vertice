@@ -7,19 +7,16 @@ import { AuditService } from '../../core/services/audit.service';
 import { RuleEngineService } from '../../core/services/rule-engine.service';
 import { SessionStoreService } from '../../core/services/session-store.service';
 import { StatusChipComponent } from '../../shared/components/status-chip/status-chip.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-quotes',
   standalone: true,
-  imports: [FormsModule, StatusChipComponent, CurrencyPipe, DatePipe],
+  imports: [PageHeaderComponent, FormsModule, StatusChipComponent, CurrencyPipe, DatePipe],
   template: `
-    <div class="page-header justify-content-between flex-wrap gap-2">
-      <div class="d-flex align-items-center gap-2">
-        <i class="bi bi-file-earmark-text fs-4"></i>
-        <h2 class="section-title">Cotizaciones</h2>
-      </div>
+    <app-page-header icon="bi-file-earmark-text" title="Cotizaciones">
       <button class="btn btn-sm btn-primary d-lg-none" (click)="goToCreate()">Nueva +</button>
-    </div>
+    </app-page-header>
 
     <div class="glass-card p-3 mb-3">
       <div class="row g-2 align-items-end">

@@ -9,36 +9,28 @@ import { AuthService } from './core/services/auth.service';
 import { UserMenuModalService } from './core/services/user-menu-modal.service';
 import { StatusChipComponent } from './shared/components/status-chip/status-chip.component';
 import { ToastContainerComponent } from './shared/components/toast-container.component';
+import { UiModalComponent } from './shared/components/ui-modal/ui-modal.component';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { LoginRole, OrderStatus, Quote, Shipment } from './core/models/entities';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ToastContainerComponent, StatusChipComponent, CurrencyPipe, DatePipe],
+  imports: [RouterOutlet, ToastContainerComponent, StatusChipComponent, UiModalComponent, CurrencyPipe, DatePipe],
   standalone: true,
   styles: [
-    '.global-customer-overlay { position: fixed; inset: 0; z-index: 12000; display: flex; align-items: center; justify-content: center; padding: 1rem; }',
-    '.global-customer-backdrop { position: fixed; inset: 0; background: rgba(8,12,20,.64); backdrop-filter: blur(2px); }',
-    '.global-customer-dialog { position: relative; z-index: 12001; width: min(820px, 96vw); }',
-    '.global-customer-card { background: #ffffff !important; border-radius: 1rem; padding: 1.1rem 1.1rem .85rem; box-shadow: 0 22px 46px rgba(0,0,0,.28); }',
-    '.profile-row { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .72rem .45rem; border-bottom: 1px solid rgba(120,140,175,.24); }',
+    '.profile-row { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .72rem .15rem; border-bottom: 1px solid var(--vx-border); }',
     '.profile-row:last-child { border-bottom: 0; }',
     '.profile-value { text-align: right; font-weight: 600; }',
     '.profile-email { display: inline-block; }',
     '.profile-copy { padding: 0 .35rem; }',
-    '.global-order-overlay { position: fixed; inset: 0; z-index: 12020; display: flex; align-items: center; justify-content: center; padding: 1rem; }',
-    '.global-order-backdrop { position: fixed; inset: 0; background: rgba(8,12,20,.64); backdrop-filter: blur(2px); }',
-    '.global-order-dialog { position: relative; z-index: 12021; width: min(860px, 97vw); }',
-    '.global-order-card { background: #fff !important; border-radius: 1rem; padding: 1rem; box-shadow: 0 24px 50px rgba(0,0,0,.3); max-height: min(90dvh, 900px); display: flex; flex-direction: column; overflow: hidden; }',
-    '.global-order-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }',
-    '.order-row { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .55rem .2rem; border-bottom: 1px solid rgba(120,140,175,.24); }',
+    '.order-row { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .55rem .1rem; border-bottom: 1px solid var(--vx-border); }',
     '.order-row:last-child { border-bottom: 0; }',
     '.customer-mini { font-size: .84rem; }',
-    '.global-user-overlay { position: fixed; inset: 0; z-index: 12040; display: flex; align-items: flex-start; justify-content: flex-end; padding: 4.1rem 1rem 1rem; }',
+    '.global-user-overlay { position: fixed; inset: 0; z-index: 1240; display: flex; align-items: flex-start; justify-content: flex-end; padding: 4.1rem 1rem 1rem; }',
     '.global-user-backdrop { position: fixed; inset: 0; background: rgba(8,12,20,.36); }',
-    '.global-user-dialog { position: relative; z-index: 12041; width: min(320px, 95vw); }',
-    '.global-user-card { background: #fff !important; border-radius: .9rem; border: 1px solid rgba(120,140,175,.28); padding: .5rem; box-shadow: 0 18px 38px rgba(0,0,0,.26); }',
-    '@media (max-width: 767px) { .profile-email { overflow-wrap: anywhere; word-break: break-word; max-width: 55vw; text-align: right; } .global-order-overlay { padding: .6rem; } .global-order-card { max-height: calc(100dvh - 1.2rem); } }'
+    '.global-user-dialog { position: relative; z-index: 1241; width: min(320px, 95vw); }',
+    '.global-user-card { background: var(--vx-surface); border-radius: var(--vx-radius-lg); border: 1px solid var(--vx-border); padding: .5rem; box-shadow: var(--vx-shadow-lg); }',
+    '@media (max-width: 767px) { .profile-email { overflow-wrap: anywhere; word-break: break-word; max-width: 55vw; text-align: right; } }'
   ],
   template: `
     <router-outlet />
@@ -63,132 +55,109 @@ import { LoginRole, OrderStatus, Quote, Shipment } from './core/models/entities'
       </div>
     }
 
-    @if (profileModal.current; as customer) {
-      <div class="global-customer-overlay" tabindex="-1" role="dialog" aria-modal="true">
-        <div class="global-customer-backdrop" (click)="profileModal.close()"></div>
-        <div class="global-customer-dialog">
-          <div class="global-customer-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h4 class="mb-0"><i class="bi bi-person-vcard me-1"></i>Ficha del cliente</h4>
-              <button type="button" class="btn btn-dark btn-sm" (click)="profileModal.close()">Cerrar</button>
+    <app-ui-modal [open]="!!profileModal.current" title="Ficha del cliente" size="lg" (close)="profileModal.close()">
+      @if (profileModal.current; as customer) {
+        <div class="small">
+          <div class="profile-row">
+            <span>Empresa</span>
+            <div class="profile-value">
+              {{ customer.legalName }}
+              <button class="btn btn-sm btn-link profile-copy" (click)="copy(customer.legalName)"><i class="bi bi-copy"></i></button>
             </div>
-            <div class="small">
-              <div class="profile-row">
-                <span>Empresa</span>
-                <div class="profile-value">
-                  {{ customer.legalName }}
-                  <button class="btn btn-sm btn-link profile-copy" (click)="copy(customer.legalName)"><i class="bi bi-copy"></i></button>
+          </div>
+          <div class="profile-row">
+            <span>Correo empresa</span>
+            <div class="profile-value">
+              <span class="profile-email">{{ customer.companyEmail }}</span>
+              <button class="btn btn-sm btn-link profile-copy" (click)="copy(customer.companyEmail)"><i class="bi bi-copy"></i></button>
+            </div>
+          </div>
+          <div class="profile-row">
+            <span>Contacto</span>
+            <div class="profile-value">
+              {{ customer.contactName }}
+              <button class="btn btn-sm btn-link profile-copy" (click)="copy(customer.contactName)"><i class="bi bi-copy"></i></button>
+            </div>
+          </div>
+          <div class="profile-row">
+            <span>Puesto</span>
+            <div class="profile-value">
+              {{ customer.contactPosition }}
+              <button class="btn btn-sm btn-link profile-copy" (click)="copy(customer.contactPosition)"><i class="bi bi-copy"></i></button>
+            </div>
+          </div>
+          <div class="profile-row"><span>Lista de precios</span><div class="profile-value">{{ customer.priceList }}</div></div>
+          <div class="profile-row"><span>Término de pago</span><div class="profile-value">{{ customer.paymentTerm }}</div></div>
+          <div class="profile-row"><span>Impuesto</span><div class="profile-value">{{ customer.taxPct }}%</div></div>
+        </div>
+      }
+    </app-ui-modal>
+
+    <app-ui-modal [open]="!!selectedOrder" [title]="selectedOrder ? 'Detalle de pedido ' + selectedOrder.id : 'Detalle de pedido'" size="lg" (close)="orderModal.close()">
+      @if (selectedOrder; as order) {
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="border rounded p-3 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold mb-0">Pedido</h6>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-danger" [disabled]="!selectedOrderQuote" (click)="simulateQuoteDownload('PDF')"><i class="bi bi-file-earmark-pdf"></i></button>
+                  <button class="btn btn-sm btn-outline-primary" [disabled]="!selectedOrderQuote" (click)="simulateQuoteDownload('DOC')"><i class="bi bi-file-earmark-word"></i></button>
                 </div>
               </div>
-              <div class="profile-row">
-                <span>Correo empresa</span>
-                <div class="profile-value">
-                  <span class="profile-email">{{ customer.companyEmail }}</span>
-                  <button class="btn btn-sm btn-link profile-copy" (click)="copy(customer.companyEmail)"><i class="bi bi-copy"></i></button>
-                </div>
+              <div class="order-row"><span>Estado</span><app-status-chip [status]="order.status" /></div>
+              <div class="order-row"><span>Promesa</span><strong>{{ order.promisedAt | date: 'd/M/y h:mm a' }}</strong></div>
+              <div class="order-row"><span>Total</span><strong>{{ order.totalUSD | currency: 'USD' }}</strong></div>
+              <div class="order-row"><span>Facturación</span><strong>{{ order.invoiceSimulatedAt ? (order.invoiceSimulatedAt | date:'d/M/y h:mm a') : 'Pendiente' }}</strong></div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="border rounded p-3 h-100 customer-mini">
+              <h6 class="fw-bold mb-2">Cotización y Cliente</h6>
+              <div class="order-row">
+                <span>Cotización aprobada</span>
+                @if (selectedOrderQuote) {
+                  <span class="badge text-bg-success">Sí</span>
+                } @else {
+                  <span class="badge text-bg-secondary">No disponible</span>
+                }
               </div>
-              <div class="profile-row">
-                <span>Contacto</span>
-                <div class="profile-value">
-                  {{ customer.contactName }}
-                  <button class="btn btn-sm btn-link profile-copy" (click)="copy(customer.contactName)"><i class="bi bi-copy"></i></button>
-                </div>
+              <div class="order-row">
+                <span>Fecha aprobación</span>
+                @if (selectedOrderQuote) {
+                  <span class="badge text-bg-light border">{{ selectedOrderQuote.createdAt | date: 'dd/MM/yy' }}</span>
+                  <span class="badge text-bg-secondary">{{ selectedOrderQuote.createdAt | date: 'h:mm a' }}</span>
+                } @else {
+                  <span class="badge text-bg-light border">N/A</span>
+                }
               </div>
-              <div class="profile-row">
-                <span>Puesto</span>
-                <div class="profile-value">
-                  {{ customer.contactPosition }}
-                  <button class="btn btn-sm btn-link profile-copy" (click)="copy(customer.contactPosition)"><i class="bi bi-copy"></i></button>
-                </div>
+              <div class="order-row"><span>Cliente</span><strong>{{ selectedOrderCustomer?.legalName || 'N/A' }}</strong></div>
+              <div class="order-row"><span>Contacto</span><strong>{{ selectedOrderCustomer?.contactName || 'N/A' }}</strong></div>
+              <div class="order-row"><span>Correo</span><strong>{{ selectedOrderCustomer?.companyEmail || 'N/A' }}</strong></div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="border rounded p-3 h-100">
+              <h6 class="fw-bold mb-2">Envío</h6>
+              <div class="order-row"><span>Despacho</span><strong>{{ selectedOrderShipment?.id || 'Sin asignar' }}</strong></div>
+              <div class="order-row"><span>Transportista</span><strong>{{ selectedOrderCarrierName }}</strong></div>
+              <div class="order-row"><span>Estado envío</span><app-status-chip [status]="selectedOrderShipment?.status || 'Pendiente'" /></div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="border rounded p-3 h-100">
+              <h6 class="fw-bold mb-2">Acciones</h6>
+              <div class="d-grid gap-2">
+                <button class="btn btn-outline-primary" [disabled]="isApproveDisabled(order.status)" (click)="setOrderStatus(order.id, 'Aprobado')">Marcar como aprobada</button>
+                <button class="btn btn-outline-success" [disabled]="isDispatchDisabled(order.status)" (click)="setOrderStatus(order.id, 'Despachado')">Marcar como despachado</button>
               </div>
-              <div class="profile-row"><span>Lista de precios</span><div class="profile-value">{{ customer.priceList }}</div></div>
-              <div class="profile-row"><span>Término de pago</span><div class="profile-value">{{ customer.paymentTerm }}</div></div>
-              <div class="profile-row"><span>Impuesto</span><div class="profile-value">{{ customer.taxPct }}%</div></div>
             </div>
           </div>
         </div>
-      </div>
-    }
-
-    @if (selectedOrder; as order) {
-      <div class="global-order-overlay" tabindex="-1" role="dialog" aria-modal="true">
-        <div class="global-order-backdrop" (click)="orderModal.close()"></div>
-        <div class="global-order-dialog" (click)="$event.stopPropagation()">
-          <div class="global-order-card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h4 class="mb-0"><i class="bi bi-receipt-cutoff me-1"></i>Detalle de pedido {{ order.id }}</h4>
-              <button class="btn btn-dark btn-sm" (click)="orderModal.close()">Cerrar</button>
-            </div>
-
-            <div class="global-order-body">
-            <div class="row g-3">
-              <div class="col-lg-6">
-                <div class="border rounded p-3 h-100">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="fw-bold mb-0">Pedido</h6>
-                    <div class="d-flex gap-2">
-                      <button class="btn btn-sm btn-outline-danger" [disabled]="!selectedOrderQuote" (click)="simulateQuoteDownload('PDF')"><i class="bi bi-file-earmark-pdf"></i></button>
-                      <button class="btn btn-sm btn-outline-primary" [disabled]="!selectedOrderQuote" (click)="simulateQuoteDownload('DOC')"><i class="bi bi-file-earmark-word"></i></button>
-                    </div>
-                  </div>
-                  <div class="order-row"><span>Estado</span><app-status-chip [status]="order.status" /></div>
-                  <div class="order-row"><span>Promesa</span><strong>{{ order.promisedAt | date: 'd/M/y h:mm a' }}</strong></div>
-                  <div class="order-row"><span>Total</span><strong>{{ order.totalUSD | currency: 'USD' }}</strong></div>
-                  <div class="order-row"><span>Facturación</span><strong>{{ order.invoiceSimulatedAt ? (order.invoiceSimulatedAt | date:'d/M/y h:mm a') : 'Pendiente' }}</strong></div>
-                </div>
-              </div>
-
-              <div class="col-lg-6">
-                <div class="border rounded p-3 h-100 customer-mini">
-                  <h6 class="fw-bold mb-2">Cotización y Cliente</h6>
-                  <div class="order-row">
-                    <span>Cotización aprobada</span>
-                    @if (selectedOrderQuote) {
-                      <span class="badge text-bg-success">Sí</span>
-                    } @else {
-                      <span class="badge text-bg-secondary">No disponible</span>
-                    }
-                  </div>
-                  <div class="order-row">
-                    <span>Fecha aprobación</span>
-                    @if (selectedOrderQuote) {
-                      <span class="badge text-bg-light border">{{ selectedOrderQuote.createdAt | date: 'dd/MM/yy' }}</span>
-                      <span class="badge text-bg-secondary">{{ selectedOrderQuote.createdAt | date: 'h:mm a' }}</span>
-                    } @else {
-                      <span class="badge text-bg-light border">N/A</span>
-                    }
-                  </div>
-                  <div class="order-row"><span>Cliente</span><strong>{{ selectedOrderCustomer?.legalName || 'N/A' }}</strong></div>
-                  <div class="order-row"><span>Contacto</span><strong>{{ selectedOrderCustomer?.contactName || 'N/A' }}</strong></div>
-                  <div class="order-row"><span>Correo</span><strong>{{ selectedOrderCustomer?.companyEmail || 'N/A' }}</strong></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="row g-3 mt-1">
-              <div class="col-lg-6">
-                <div class="border rounded p-3 h-100">
-                  <h6 class="fw-bold mb-2">Envío</h6>
-                  <div class="order-row"><span>Despacho</span><strong>{{ selectedOrderShipment?.id || 'Sin asignar' }}</strong></div>
-                  <div class="order-row"><span>Transportista</span><strong>{{ selectedOrderCarrierName }}</strong></div>
-                  <div class="order-row"><span>Estado envío</span><app-status-chip [status]="selectedOrderShipment?.status || 'Pendiente'" /></div>
-                </div>
-              </div>
-              <div class="col-lg-6">
-                <div class="border rounded p-3 h-100">
-                  <h6 class="fw-bold mb-2">Acciones</h6>
-                  <div class="d-grid gap-2">
-                    <button class="btn btn-outline-primary" [disabled]="isApproveDisabled(order.status)" (click)="setOrderStatus(order.id, 'Aprobado')">Marcar como aprobada</button>
-                    <button class="btn btn-outline-success" [disabled]="isDispatchDisabled(order.status)" (click)="setOrderStatus(order.id, 'Despachado')">Marcar como despachado</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    }
+      }
+    </app-ui-modal>
   `
 })
 export class AppComponent {

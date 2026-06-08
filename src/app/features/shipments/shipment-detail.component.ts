@@ -6,21 +6,18 @@ import { RuleEngineService } from '../../core/services/rule-engine.service';
 import { SessionStoreService } from '../../core/services/session-store.service';
 import { PodUploaderComponent } from '../../shared/components/pod-uploader/pod-uploader.component';
 import { StatusChipComponent } from '../../shared/components/status-chip/status-chip.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-shipment-detail',
   standalone: true,
-  imports: [FormsModule, PodUploaderComponent, StatusChipComponent],
+  imports: [PageHeaderComponent, FormsModule, PodUploaderComponent, StatusChipComponent],
   template: `
-    <div class="page-header justify-content-between">
-      <div class="d-flex align-items-center gap-2">
-        <i class="bi bi-truck fs-4"></i>
-        <h2 class="section-title mb-0">Detalle de despacho</h2>
-      </div>
+    <app-page-header icon="bi-truck" title="Detalle de despacho">
       <button class="btn btn-outline-secondary btn-sm d-lg-none" type="button" (click)="goBack()">
         <i class="bi bi-arrow-left me-1"></i>Atrás
       </button>
-    </div>
+    </app-page-header>
 
     @if (!shipment) {
       <div class="glass-card p-3">

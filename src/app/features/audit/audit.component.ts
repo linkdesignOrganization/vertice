@@ -3,13 +3,14 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuditEvent } from '../../core/models/entities';
 import { SessionStoreService } from '../../core/services/session-store.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-audit',
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [PageHeaderComponent, FormsModule, DatePipe],
   template: `
-    <div class="page-header"><i class="bi bi-shield-lock fs-4"></i><h2 class="section-title">Auditoría Global</h2></div>
+    <app-page-header icon="bi-shield-lock" title="Auditoría Global" />
 
     <div class="glass-card p-3 mb-3">
       <label class="form-label">Filtrar eventos</label>

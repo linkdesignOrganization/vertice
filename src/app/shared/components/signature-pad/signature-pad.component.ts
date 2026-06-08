@@ -4,7 +4,7 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild }
   selector: 'app-signature-pad',
   standalone: true,
   styles: [
-    'canvas { border: 1px solid #c7d5e5; border-radius: 0.6rem; width: 100%; max-width: 420px; touch-action: none; background: rgba(255,255,255,.7); display: block; margin-inline: auto; }',
+    'canvas { border: 1px solid var(--vx-border); border-radius: var(--vx-radius); width: 100%; max-width: 420px; touch-action: none; background: var(--vx-surface); display: block; margin-inline: auto; }',
     '.row-actions { display: flex; gap: 8px; align-items: center; margin-top: 8px; }',
     '@media (max-width: 991px) { .row-actions { justify-content: center; } }'
   ],
